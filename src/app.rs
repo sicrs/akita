@@ -228,9 +228,17 @@ impl AkitaClient {
             .join(format!("raw/{}", slug).as_str());
         let req = self.client.get(uri.to_str().unwrap());
         let response = handle_err(req.send());
-        let content = handle_err(response.text());
-
-        return content;
+        let status = response.status();
+        let text = handle_err(response.text());
+        match status {
+            StatusCode::OK => {
+                return text;
+            }
+            _ => {
+                eprintln!("error: {}", text);
+                process::exit(1);
+            }
+        }
     }
 }
 
