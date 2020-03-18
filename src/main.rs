@@ -1,10 +1,9 @@
 mod app;
 mod dto;
-mod interpreter;
 mod url;
 
 use app::{init, AkitaClient};
-use interpreter::App;
+use cli::App;
 use std::env::args;
 
 fn main() {

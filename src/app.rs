@@ -1,5 +1,5 @@
+use cli::{App, Command, Context, Flag, FlagKind};
 use crate::dto::{Document, ErrMesg, UploadRequest, UploadResponse};
-use crate::interpreter::*;
 use crate::url::Url;
 use reqwest::blocking::{Client, RequestBuilder};
 use reqwest::StatusCode;
@@ -31,8 +31,8 @@ pub fn init() -> App<AkitaClient> {
                     inner.put_doc(c.get("s"), content);
                 }
             })
-            .flag(Flag::new("s", "slug", FlagKind::InputFlag))
-            .flag(Flag::new("c", "content", FlagKind::InputFlag)),
+            .flag(Flag::new("s", "slug", FlagKind::InputFlag, "desired slug"))
+            .flag(Flag::new("c", "content", FlagKind::InputFlag, "document content")),
         )
         .register(Command::new(
             "get",
@@ -175,7 +175,7 @@ impl AkitaClient {
 impl AkitaClient {
     pub fn put_doc(&self, slug: Option<String>, content: String) {
         if content.len() == 0 {
-            eprintln!("No content provideed.");
+            eprintln!("No content provided.");
         }
 
         let uri = self.conf.provider.get().join("documents");
