@@ -5,31 +5,42 @@ use reqwest::blocking::{Client, RequestBuilder};
 use reqwest::StatusCode;
 use std::env::{var, Args};
 use std::fs::File;
-use std::io::{ErrorKind, Read, Write};
+use std::io::{stdin, ErrorKind, Read, Stdin, Write};
 use std::path::PathBuf;
 use std::process;
 
 pub fn init() -> App<AkitaClient> {
     let db_client = AkitaClient::new();
     let app: App<AkitaClient> = App::new(db_client)
-        .register(
+        .register_default(
             Command::new("put", "p", "", |inner: AkitaClient, c: Context| {
-                if let Some(content) = c.get("c") {
-                    // content flag is set
-                    inner.put_doc(c.get("s"), content)
-                } else {
-                    // a file is specified
-                    if c.arg.len() == 0 {
-                        eprintln!("error: no file specified");
-                        process::exit(1);
+                let mut content = String::new();
+                if c.is_default {
+                    let stream = stdin();
+                    loop {
+                        let mut buf = String::new();
+                        if stream.read_line(&mut buf).unwrap() == 0 {
+                            break;
+                        }
+                        content.push_str(&buf);
                     }
+                } else {
+                    if let Some(cont) = c.get("c") {
+                        // content flag is set
+                        content = cont;
+                    } else {
+                        // a file is specified
+                        if c.arg.len() == 0 {
+                            eprintln!("error: no file specified");
+                            process::exit(1);
+                        }
                     
-                    let mut content = String::new();
-                    let mut file: File = handle_err(File::open(c.arg[0].as_str()));
-                    handle_err(file.read_to_string(&mut content));
-
-                    inner.put_doc(c.get("s"), content);
+                        let mut file: File = handle_err(File::open(c.arg[0].as_str()));
+                        handle_err(file.read_to_string(&mut content));
+                    }
                 }
+                
+                inner.put_doc(c.get("s"), content);
             })
             .flag(Flag::new("s", "slug", FlagKind::InputFlag, "desired slug"))
             .flag(Flag::new("c", "content", FlagKind::InputFlag, "document content")),
