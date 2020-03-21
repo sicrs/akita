@@ -31,7 +31,7 @@ pub fn init() -> App<AkitaClient> {
                     } else {
                         // a file is specified
                         if c.arg.len() == 0 {
-                            eprintln!("error: no file specified");
+                            eprintln!("\x1b[0;31merror\x1b[0m: no file specified");
                             process::exit(1);
                         }
                     
@@ -51,7 +51,7 @@ pub fn init() -> App<AkitaClient> {
             "",
             |inner: AkitaClient, c: Context| {
                 if c.arg.len() == 0 {
-                    eprintln!("error: no slug specified");
+                    eprintln!("\x1b[0;31merror\x1b[0m: no slug specified");
                     process::exit(1);
                 }
 
@@ -140,14 +140,14 @@ impl Config {
                             };
                         }
                         _ => {
-                            eprintln!("[Config::get] {}", error);
+                            eprintln!("\x1b[0;31merror\x1b[0m: {}", error);
                             process::exit(1);
                         }
                     },
                 }
             }
             Err(err) => {
-                eprintln!("Couldn't get HOME env var: {}", err);
+                eprintln!("\x1b[0;31merror\x1b[0m: couldn't get HOME env var: {}", err);
                 process::exit(1);
             }
         }
@@ -186,7 +186,7 @@ impl AkitaClient {
 impl AkitaClient {
     pub fn put_doc(&self, slug: Option<String>, content: String) {
         if content.len() == 0 {
-            eprintln!("No content provided.");
+            eprintln!("\x1b[0;31merror\x1b[0m: no content provided.");
         }
 
         let uri = self.conf.provider.get().join("documents");
@@ -220,7 +220,7 @@ impl AkitaClient {
             _ => {
                 let text = handle_err(response.text());
                 let mes: ErrMesg = serde_json::from_str(text.as_str()).unwrap();
-                eprintln!("error: {}", mes.message);
+                eprintln!("\x1b[0;31merror\x1b[0m: {}", mes.message);
                 process::exit(1);
             }
         }
@@ -228,7 +228,7 @@ impl AkitaClient {
 
     pub fn get_doc(&self, slug: String) -> String {
         if slug == "" {
-            eprintln!("error: no slug provided");
+            eprintln!("\x1b[0;31merror\x1b[0m: no slug provided");
             process::exit(1);
         }
 
@@ -246,7 +246,7 @@ impl AkitaClient {
                 return text;
             }
             _ => {
-                eprintln!("error: {}", text);
+                eprintln!("\x1b[0;31merror\x1b[0m: {}", text);
                 process::exit(1);
             }
         }
@@ -260,7 +260,7 @@ where
     match res {
         Ok(val) => return val,
         Err(err) => {
-            eprintln!("{}", err);
+            eprintln!("\x1b[0;31merror\x1b[0m: {}", err);
             process::exit(1);
         }
     }
