@@ -66,7 +66,24 @@ pub fn init() -> App<AkitaClient> {
                 }
             },)
             .flag(Flag::new("o", "output", FlagKind::InputFlag, "output filename"))
-        );
+        )
+        .register(Command::new(
+            "auth",
+            "a",
+            "",
+            |mut inner: AkitaClient, c: Context| {
+                if c.arg.len() == 0 {
+                    eprintln!("\x1b[0;31merror\x1b[0m: no API key specified");
+                    process::exit(1)
+                } else if c.arg.len() > 1 {
+                    eprintln!("\x1b[0;31merror\x1b[0m: more than one argument specified");
+                    process::exit(1);
+                }
+
+                inner.conf.creds = Some(c.arg[0].clone());
+                inner.conf.save();
+            }
+        ));
 
     return app;
 }
