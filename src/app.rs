@@ -19,7 +19,8 @@ pub fn init() -> App<AkitaClient> {
                     let stream = stdin();
                     loop {
                         let mut buf = String::new();
-                        if stream.read_line(&mut buf).unwrap() == 0 {
+                        let len = stream.read_line(&mut buf).unwrap();
+                        if len == 0 {
                             break;
                         }
                         content.push_str(&buf);
@@ -56,9 +57,17 @@ pub fn init() -> App<AkitaClient> {
                 }
 
                 let res = inner.get_doc(c.arg[0].clone());
-                println!("{}", res);
-            },
-        ));
+                if let Some(filename) = c.get("o") {
+                    let mut file = File::create(filename).unwrap();
+                    file.write_all(res.as_bytes()).unwrap();
+                    file.flush().unwrap();
+                } else {
+                    println!("{}", res);
+                }
+            },)
+            .flag(Flag::new("o", "output", FlagKind::InputFlag, "output filename"))
+        )
+        
 
     return app;
 }
