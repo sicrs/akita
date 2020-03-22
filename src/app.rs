@@ -1,5 +1,5 @@
 use cli::{App, Command, Context, Flag, FlagKind};
-use crate::dto::{Document, ErrMesg, UploadRequest, UploadResponse};
+use crate::dto::{Document, ErrMesg, ListItem, UploadRequest, UploadResponse};
 use crate::url::Url;
 use reqwest::blocking::{Client, RequestBuilder};
 use reqwest::StatusCode;
@@ -82,6 +82,17 @@ pub fn init() -> App<AkitaClient> {
 
                 inner.conf.creds = Some(c.arg[0].clone());
                 inner.conf.save();
+            }
+        ))
+        .register(Command::new(
+            "list",
+            "ls",
+            "",
+            |inner: AkitaClient, _c: Context| {
+                let items: Vec<ListItem> = inner.list_doc();
+                for item in items {
+                    println!("{}", item);
+                }
             }
         ));
 
@@ -259,6 +270,35 @@ impl AkitaClient {
                 process::exit(1);
             }
         }
+    }
+
+    pub fn list_doc(&self) -> Vec<ListItem> {
+        if let Some(key) = &self.conf.creds {
+            let uri = self
+                .conf
+                .provider
+                .get()
+                .join("api/v1/docs");
+            let req = self.client.get(uri.to_str().unwrap())
+                .header("X-Api-Key", key.as_str());
+            let response = handle_err(req.send());
+            let status = response.status();
+            let text = handle_err(response.text());
+            match status {
+                StatusCode::OK => {
+                    let list: Vec<ListItem> = serde_json::from_str(text.as_str()).unwrap();
+                    return list;
+                },
+                _ => {
+                    eprintln!("\x1b[0;31merror\x1b[0m: {}", text);
+                    process::exit(1);
+                }
+            }
+
+        } else {
+            eprintln!("\x1b[0;31merror\x1b[0m: no API key provided; use `akita auth`");
+            process::exit(1);
+        } 
     }
 }
 
