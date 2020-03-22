@@ -66,31 +66,15 @@ pub fn init() -> App<AkitaClient> {
                 }
             },)
             .flag(Flag::new("o", "output", FlagKind::InputFlag, "output filename"))
-        )
-        
+        );
 
     return app;
 }
 
 #[derive(Debug)]
-pub struct Credentials {
-    pub user: String,
-    pub api_key: String,
-}
-
-impl Credentials {
-    fn new(user: &str, api_key: &str) -> Credentials {
-        Credentials {
-            user: String::from(user),
-            api_key: String::from(api_key),
-        }
-    }
-}
-
-#[derive(Debug)]
 pub struct Config {
     provider: Url,
-    creds: Option<Credentials>,
+    creds: Option<String>,
     handle: Option<PathBuf>,
 }
 
@@ -124,8 +108,7 @@ impl Config {
                                     *config.provider = String::from(p[1]);
                                 }
                                 "creds" => {
-                                    let o: Vec<&str> = p[1].split(";").collect();
-                                    config.creds = Some(Credentials::new(o[0], o[1]));
+                                    config.creds = Some(String::from(p[1]));
                                 }
                                 _ => {
                                     return Config {
@@ -166,7 +149,7 @@ impl Config {
         let mut confstring = String::new();
         confstring.push_str(self.provider.export().as_str());
         if let Some(cred) = &self.creds {
-            confstring.push_str(format!("creds = {};{}\n", cred.user, cred.api_key).as_str());
+            confstring.push_str(format!("creds = {}\n", cred).as_str());
         }
 
         if let Some(path) = self.handle {
@@ -213,7 +196,7 @@ impl AkitaClient {
         }
 
         if let Some(cred) = &self.conf.creds {
-            req = req.header("X-Api-Key", cred.api_key.as_str());
+            req = req.header("X-Api-Key", cred.as_str());
         }
         let response = handle_err(req.send());
         match response.status() {
@@ -293,7 +276,7 @@ mod test {
     #[test]
     fn get_test() {
         let a = AkitaClient::new();
-        let res = a.get_doc("changelog");
+        let res = a.get_doc("changelog".to_string());
         println!("{}", res);
     }
 }
