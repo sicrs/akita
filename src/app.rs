@@ -317,20 +317,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::{AkitaClient, Config};
-    #[test]
-    fn read_conf() {
-        let conf = Config::get();
-        println!("{:?}", conf);
-        conf.save();
-    }
-    #[test]
-    fn upload_test() {
-        let a = AkitaClient::new();
-        a.put_doc(None, String::from("yus"));
-    }
-
-    #[test]
+    use super::{AkitaClient};
     fn get_test() {
         let a = AkitaClient::new();
         let res = a.get_doc("changelog".to_string());
