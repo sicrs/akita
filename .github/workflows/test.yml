@@ -2,12 +2,23 @@ name: Run tests
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    - actions
 
 jobs:
-  test:
-    name: Run tests
+  test-linux:
+    name: Run tests (linux)
     runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run tests
+      run: cargo test --verbose
+  
+  rest-macos:
+    name: Run tests (macOS)
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
