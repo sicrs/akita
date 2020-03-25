@@ -13,7 +13,7 @@ pub fn init() -> App<AkitaClient> {
     let db_client = AkitaClient::new();
     let app: App<AkitaClient> = App::new(db_client)
         .register_default(
-            Command::new("put", "p", "", |inner: AkitaClient, c: Context| {
+            Command::new("put", None, |inner: AkitaClient, c: Context| {
                 let mut content = String::new();
                 if c.is_default {
                     let stream = stdin();
@@ -26,7 +26,7 @@ pub fn init() -> App<AkitaClient> {
                         content.push_str(&buf);
                     }
                 } else {
-                    if let Some(cont) = c.get("c") {
+                    if let Some(cont) = c.get("content") {
                         // content flag is set
                         content = cont;
                     } else {
@@ -41,15 +41,14 @@ pub fn init() -> App<AkitaClient> {
                     }
                 }
                 
-                inner.put_doc(c.get("s"), content);
+                inner.put_doc(c.get("slug"), content);
             })
-            .flag(Flag::new("s", "slug", FlagKind::InputFlag, "desired slug"))
-            .flag(Flag::new("c", "content", FlagKind::InputFlag, "document content")),
+            .flag(Flag::new("slug", Some("s"), FlagKind::InputFlag, "desired slug"))
+            .flag(Flag::new("content", Some("c"), FlagKind::InputFlag, "document content"))
         )
         .register(Command::new(
             "get",
-            "g",
-            "",
+            None,
             |inner: AkitaClient, c: Context| {
                 if c.arg.len() == 0 {
                     eprintln!("\x1b[0;31merror\x1b[0m: no slug specified");
@@ -57,7 +56,7 @@ pub fn init() -> App<AkitaClient> {
                 }
 
                 let res = inner.get_doc(c.arg[0].clone());
-                if let Some(filename) = c.get("o") {
+                if let Some(filename) = c.get("output") {
                     let mut file = File::create(filename).unwrap();
                     file.write_all(res.as_bytes()).unwrap();
                     file.flush().unwrap();
@@ -65,12 +64,11 @@ pub fn init() -> App<AkitaClient> {
                     println!("{}", res);
                 }
             },)
-            .flag(Flag::new("o", "output", FlagKind::InputFlag, "output filename"))
+            .flag(Flag::new("output", Some("o"), FlagKind::InputFlag, "output filename"))
         )
         .register(Command::new(
             "auth",
-            "a",
-            "",
+            None,
             |mut inner: AkitaClient, c: Context| {
                 if c.arg.len() == 0 {
                     eprintln!("\x1b[0;31merror\x1b[0m: no API key specified");
@@ -86,8 +84,7 @@ pub fn init() -> App<AkitaClient> {
         ))
         .register(Command::new(
             "list",
-            "ls",
-            "",
+            None,
             |inner: AkitaClient, _c: Context| {
                 let items: Vec<ListItem> = inner.list_doc();
                 for item in items {
