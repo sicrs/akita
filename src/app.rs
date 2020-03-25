@@ -45,6 +45,17 @@ pub fn init() -> App<AkitaClient> {
             })
             .flag(Flag::new("slug", Some("s"), FlagKind::InputFlag, "desired slug"))
             .flag(Flag::new("content", Some("c"), FlagKind::InputFlag, "document content"))
+            .set_help(
+                "akita put
+upload content to dogbin
+
+USAGE:
+akita put [OPTIONS] [INPUT]
+
+OPTIONS:
+-c, --content <input>       use input as content       
+-s, --slug <input>          slug for uploaded document"
+            )
         )
         .register(Command::new(
             "get",
@@ -65,6 +76,16 @@ pub fn init() -> App<AkitaClient> {
                 }
             },)
             .flag(Flag::new("output", Some("o"), FlagKind::InputFlag, "output filename"))
+            .set_help(
+                "akita get
+get a document from dogbin
+
+USAGE:
+akita get [OPTION] SLUG
+
+OPTIONS:
+-o, --output <filename>         (optional) filename to write content to"
+            )
         )
         .register(Command::new(
             "auth",
@@ -80,8 +101,15 @@ pub fn init() -> App<AkitaClient> {
 
                 inner.conf.creds = Some(c.arg[0].clone());
                 inner.conf.save();
-            }
-        ))
+            })
+            .set_help(
+                "akita auth
+log in to dogbin
+
+USAGE:
+akita auth [API_KEY]"
+            )
+        )
         .register(Command::new(
             "list",
             None,
@@ -90,8 +118,16 @@ pub fn init() -> App<AkitaClient> {
                 for item in items {
                     println!("{}", item);
                 }
-            }
-        ));
+            })
+            .set_help(
+                "akita list
+list documents uploaded
+NOTE: will only work if you are logged in
+
+USAGE:
+akita list"
+            )
+        );
 
     return app;
 }
