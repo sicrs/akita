@@ -111,7 +111,7 @@ akita auth [API_KEY]"
             )
         )
         .register(Command::new(
-            "list",
+            "ls",
             None,
             |inner: AkitaClient, _c: Context| {
                 let items: Vec<ListItem> = inner.list_doc();
@@ -120,7 +120,7 @@ akita auth [API_KEY]"
                 }
             })
             .set_help(
-                "akita list
+                "akita ls
 list documents uploaded
 NOTE: will only work if you are logged in
 
