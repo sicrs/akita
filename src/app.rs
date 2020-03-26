@@ -15,8 +15,7 @@ pub fn init() -> App<AkitaClient> {
         .register_default(
             Command::new("put", None, |inner: AkitaClient, c: Context| {
                 let mut content = String::new();
-
-                if c.is_set("content") == false && c.arg.len() == 0 {
+                if !atty::is(atty::Stream::Stdin) {
                     let stream = stdin();
                     loop {
                         let mut buf = String::new();
@@ -39,7 +38,6 @@ pub fn init() -> App<AkitaClient> {
                         handle_err(file.read_to_string(&mut content));
                     }
                 }
-
                 inner.put_doc(c.get("slug"), content);
             })
             .flag(Flag::new("slug", Some("s"), FlagKind::InputFlag, "desired slug"))
