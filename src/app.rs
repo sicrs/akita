@@ -1,11 +1,11 @@
 use cli::{App, Command, Context, Flag, FlagKind};
-use crate::dto::{Document, ErrMesg, ListItem, UploadRequest, UploadResponse};
+use crate::dto::{ErrMesg, ListItem, UploadRequest, UploadResponse};
 use crate::url::Url;
 use reqwest::blocking::{Client, RequestBuilder};
 use reqwest::StatusCode;
-use std::env::{var, Args};
+use std::env::var;
 use std::fs::File;
-use std::io::{stdin, ErrorKind, Read, Stdin, Write};
+use std::io::{stdin, ErrorKind, Read, Write};
 use std::path::PathBuf;
 use std::process;
 
