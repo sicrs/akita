@@ -124,6 +124,16 @@ NOTE: will only work if you are logged in
 USAGE:
 akita list"
             )
+        )
+        .register(Command::new(
+                "logout",
+                None,
+                |mut inner: AkitaClient, _c: Context| {
+                    // reset credentials
+                    inner.conf.creds = None;
+                    inner.conf.save();
+                    println!("Logged out");
+                })
         );
 
     return app;
